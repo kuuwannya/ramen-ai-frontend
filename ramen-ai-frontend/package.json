@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "lint:fix": "expo lint --fix"
+    "lint:fix": "expo lint --fix",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "expo": "~53.0.8",
