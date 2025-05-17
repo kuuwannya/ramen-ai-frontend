@@ -19,25 +19,25 @@ type CardDataType = {
 const cardData = [
   {
     id: 1,
-    image: require("../../assets/Kocotto_demo.png"),
+    image: require("../../public/Kocotto_demo.png"),
     title: "ラーメン1",
     description: "濃厚とんこつラーメン",
   },
   {
     id: 2,
-    image: require("../../assets/Kocotto_demo.png"),
+    image: require("../../public/Kocotto_demo.png"),
     title: "ラーメン2",
     description: "あっさり醤油ラーメン",
   },
   {
     id: 3,
-    image: require("../../assets/Kocotto_demo.png"),
+    image: require("../../public/Kocotto_demo.png"),
     title: "ラーメン3",
     description: "こってり味噌ラーメン",
   },
 ];
 
-export default function Profile() {
+export default function Preferences() {
   const swiperRef = useRef<SwiperCardRefType>();
 
   const renderCard = useCallback((item: (typeof cardData)[0]) => {

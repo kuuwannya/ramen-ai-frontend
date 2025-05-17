@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <View className="flex-1 items-center justify-center bg-red-50">
       <Text>Welcome to Ramen AI!</Text>
-      <Button title="ボタン" onPress={() => router.push("/profile")} />
+      <Button title="ボタン" onPress={() => router.push("/preferences")} />
       <StatusBar style="auto" />
     </View>
   );
