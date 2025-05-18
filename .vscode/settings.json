@@ -1,8 +1,8 @@
 {
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "never",
-    "source.addMissingImports": true,
-    "source.organizeImports": true
+    "source.addMissingImports": "explicit",
+    "source.organizeImports": "explicit"
   },
   "editor.tabSize": 4,
   "editor.wordWrap": "on",
