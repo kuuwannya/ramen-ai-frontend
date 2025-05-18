@@ -9,7 +9,6 @@ import {
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 import { Link } from "expo-router";
 
-// スワイプで表示する画像データ
 type CardDataType = {
   id: number;
   image: ImageSourcePropType;
@@ -38,10 +37,9 @@ const cardData = [
   },
 ];
 
-export default function Profile() {
+export default function Preferences() {
   const swiperRef = useRef<SwiperCardRefType>();
 
-  // カードのレンダリング関数
   const renderCard = useCallback((item: (typeof cardData)[0]) => {
     return (
       <View className="flex-1 rounded-xl overflow-hidden bg-white shadow-lg">
@@ -60,7 +58,6 @@ export default function Profile() {
     );
   }, []);
 
-  // オーバーレイラベルの定義（右スワイプ）
   const OverlayLabelRight = useCallback(() => {
     return (
       <View className="absolute w-full h-full rounded-xl justify-center items-center bg-green-500/50">
@@ -69,7 +66,6 @@ export default function Profile() {
     );
   }, []);
 
-  // オーバーレイラベルの定義（左スワイプ）
   const OverlayLabelLeft = useCallback(() => {
     return (
       <View className="absolute w-full h-full rounded-xl justify-center items-center bg-red-500/50">
@@ -86,7 +82,6 @@ export default function Profile() {
         </Text>
       </View>
 
-      {/* Swiperスタイルはinlineで設定（Tailwindがサポートしていない属性があるため） */}
       <View className="flex-1 items-center justify-center">
         <Swiper
           ref={swiperRef}
@@ -97,7 +92,6 @@ export default function Profile() {
             height: "75%",
             borderRadius: 15,
           }}
-          // infinite={false}
           OverlayLabelRight={OverlayLabelRight}
           OverlayLabelLeft={OverlayLabelLeft}
           onSwipeRight={(index) => {
