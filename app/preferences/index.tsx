@@ -19,19 +19,19 @@ type CardDataType = {
 const cardData = [
   {
     id: 1,
-    image: require("../../public/Kocotto_demo.png"),
+    image: require("../../assets/Kocotto_demo.png"),
     title: "ラーメン1",
     description: "濃厚とんこつラーメン",
   },
   {
     id: 2,
-    image: require("../../public/Kocotto_demo.png"),
+    image: require("../../assets/Kocotto_demo.png"),
     title: "ラーメン2",
     description: "あっさり醤油ラーメン",
   },
   {
     id: 3,
-    image: require("../../public/Kocotto_demo.png"),
+    image: require("../../assets/Kocotto_demo.png"),
     title: "ラーメン3",
     description: "こってり味噌ラーメン",
   },
