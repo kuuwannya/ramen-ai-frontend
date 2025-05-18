@@ -39,6 +39,7 @@ npm run start
 - [Expo Router](https://docs.expo.dev/versions/latest/sdk/router/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Nativewind](https://www.nativewind.dev/docs/getting-started/other-bundlers)
+- [React Native Reusables](https://rnr-docs.vercel.app/getting-started/introduction/): UIライブラリ
 - [rn-swiper-list](https://github.com/Skipperlla/rn-swiper-list): Swiperのライブラリ
 
 # 静的ツール
