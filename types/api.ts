@@ -5,10 +5,6 @@ export interface MenuItem {
   noodle_name: string;
   soup_name: string;
   image_url: string;
-  name_kana?: string;
-  business_hours?: string;
-  regular_holiday?: string;
-  description?: string;
 }
 
 export interface RandomMenusResponse {

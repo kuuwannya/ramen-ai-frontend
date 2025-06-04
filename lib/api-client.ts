@@ -22,14 +22,14 @@ export const secureApiClient = axios.create({
 export const apiService = {
   getRandomMenus: async () => {
     try {
-      const response = await fetch(API_URL + "/random_menus");
+      const response = await secureApiClient.get("/random_menus");
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
+      // if (!response.ok) {
+      //   throw new Error(`API error: ${response.status}`);
+      // }
 
-      const data = await response.json();
-      return data;
+      //const data = await response.data;
+      return response.data;
     } catch (error) {
       return {
         menus: [
