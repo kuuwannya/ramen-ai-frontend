@@ -56,17 +56,36 @@ export default function Suggestions() {
           />
           <Card className="w-full shadow-lg mb-8">
             <CardHeader>
-              <CardTitle>{menu.name || "ラーメン店"}</CardTitle>
-              <CardDescription>{menu.name_kana || ""}</CardDescription>
+              <CardTitle>{menu.name || "ラーメン"}</CardTitle>
+              <CardDescription className="flex flex-row flex-wrap gap-2">
+                {menu.genre_name && (
+                  <View className="bg-slate-100 px-2 py-1 rounded-md">
+                    <Text className="text-xs">{menu.genre_name}</Text>
+                  </View>
+                )}
+                {menu.noodle_name && (
+                  <View className="bg-slate-100 px-2 py-1 rounded-md">
+                    <Text className="text-xs">{menu.noodle_name}</Text>
+                  </View>
+                )}
+                {menu.soup_name && (
+                  <View className="bg-slate-100 px-2 py-1 rounded-md">
+                    <Text className="text-xs">{menu.soup_name}</Text>
+                  </View>
+                )}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <Text>営業時間: {menu.business_hours || "情報がありません"}</Text>
-              {menu.description && (
-                <Text className="mt-2">{menu.description}</Text>
-              )}
+              <Text className="font-bold mb-2">今日のおすすめ</Text>
+              <Text>
+                {menu.soup_name}ベースの{menu.genre_name}です。
+                {menu.noodle_name}との相性が抜群です。
+              </Text>
             </CardContent>
             <CardFooter>
-              <Text>定休日: {menu.regular_holiday || "情報がありません"}</Text>
+              <View className="flex flex-row items-center">
+                <Text className="text-sm text-slate-500">ID: {menu.id}</Text>
+              </View>
             </CardFooter>
           </Card>
         </View>

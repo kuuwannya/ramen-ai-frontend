@@ -1,13 +1,15 @@
+import { Link } from "expo-router";
+import { useRandomMenus } from "hooks/useRandomMenus";
 import React, { useCallback, useRef } from "react";
 import {
+  ActivityIndicator,
   Image,
-  View,
   Text,
   TouchableOpacity,
+  View,
   type ImageSourcePropType,
 } from "react-native";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
-import { Link } from "expo-router";
 
 type CardDataType = {
   id: number;
@@ -16,31 +18,10 @@ type CardDataType = {
   description: string;
 };
 
-const cardData = [
-  {
-    id: 1,
-    image: require("../../assets/Kocotto_demo.png"),
-    title: "ラーメン1",
-    description: "濃厚とんこつラーメン",
-  },
-  {
-    id: 2,
-    image: require("../../assets/Kocotto_demo.png"),
-    title: "ラーメン2",
-    description: "あっさり醤油ラーメン",
-  },
-  {
-    id: 3,
-    image: require("../../assets/Kocotto_demo.png"),
-    title: "ラーメン3",
-    description: "こってり味噌ラーメン",
-  },
-];
-
 export default function Preferences() {
+  const { menus, loading, error } = useRandomMenus();
   const swiperRef = useRef<SwiperCardRefType>();
-
-  const renderCard = useCallback((item: (typeof cardData)[0]) => {
+  const renderCard = useCallback((item: CardDataType) => {
     return (
       <View className="flex-1 rounded-xl overflow-hidden bg-white shadow-lg">
         <Image
@@ -74,6 +55,42 @@ export default function Preferences() {
     );
   }, []);
 
+  // APIから取得したmenusデータをcardData形式に変換
+  const transformedCardData = menus.map((menu) => ({
+    id: menu.id,
+    image: menu.image_url
+      ? { uri: menu.image_url }
+      : require("../../assets/Kocotto_demo.png"),
+    title: menu.name,
+    description: `${menu.soup_name}ベースの${menu.genre_name}（${menu.noodle_name}）`,
+  }));
+
+  if (loading) {
+    return (
+      <View className="flex flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text className="mt-4">ラーメン情報を取得中...</Text>
+      </View>
+    );
+  }
+  if (error) {
+    return (
+      <View className="flex flex-1 items-center justify-center">
+        <Text className="text-red-500">
+          エラーが発生しました。再度お試しください。
+        </Text>
+      </View>
+    );
+  }
+
+  if (!Array.isArray(menus) || menus.length === 0) {
+    return (
+      <View className="flex flex-1 items-center justify-center">
+        <Text>表示できるラーメン情報がありません。</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-gray-50">
       <View className="py-5 items-center">
@@ -85,8 +102,8 @@ export default function Preferences() {
       <View className="flex-1 items-center justify-center">
         <Swiper
           ref={swiperRef}
-          data={cardData}
-          renderCard={(cardData) => renderCard(cardData)}
+          data={transformedCardData}
+          renderCard={(transformedCardData) => renderCard(transformedCardData)}
           cardStyle={{
             width: "90%",
             height: "75%",
@@ -95,10 +112,10 @@ export default function Preferences() {
           OverlayLabelRight={OverlayLabelRight}
           OverlayLabelLeft={OverlayLabelLeft}
           onSwipeRight={(index) => {
-            console.log(`いいね: ${cardData[index].title}`);
+            console.log(`いいね: ${transformedCardData[index].title}`);
           }}
           onSwipeLeft={(index) => {
-            console.log(`パス: ${cardData[index].title}`);
+            console.log(`パス: ${transformedCardData[index].title}`);
           }}
           onSwipedAll={() => {
             console.log("全てのカードを見ました");
