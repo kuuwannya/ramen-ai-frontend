@@ -5,11 +5,11 @@ const API_URL =
   Constants.expoConfig?.extra?.apiUrl ||
   (Constants.executionEnvironment === "standalone"
     ? "https://your-production-api.com/api/v1"
-    : "http://10.0.2.2:3000/api/v1");
+    : "http://localhost:3000/api/v1");
 
 export const secureApiClient = axios.create({
   baseURL: API_URL,
-  timeout: 1000,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
