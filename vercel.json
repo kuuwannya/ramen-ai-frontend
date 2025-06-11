@@ -1,9 +1,14 @@
 {
-  "buildCommand": "npm install && expo export -p web",
+  "buildCommand": "npm ci && npx expo export -p web",
   "outputDirectory": "dist",
   "devCommand": "expo start --web",
   "cleanUrls": true,
   "framework": null,
+  "functions": {
+    "app/**": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
