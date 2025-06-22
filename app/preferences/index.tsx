@@ -1,6 +1,7 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useRandomMenus } from "hooks/useRandomMenus";
-import React, { useCallback, useRef } from "react";
+import { apiService } from "lib/api-client";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -20,14 +21,23 @@ type CardDataType = {
 
 export default function Preferences() {
   const { menus, loading, error } = useRandomMenus();
+  const router = useRouter();
   const swiperRef = useRef<SwiperCardRefType>();
+
+  const [likedMenuIds, setLikedMenuIds] = useState<number[]>([]);
+  const [swipedCount, setSwipedCount] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const renderCard = useCallback((item: CardDataType) => {
+    console.log("Image URL:", item.image); // デバッグ用
     return (
       <View className="flex-1 rounded-xl overflow-hidden bg-white shadow-lg">
         <Image
           source={item.image}
           className="w-full h-[75%]"
           resizeMode="cover"
+          onLoad={() => console.log("Image loaded successfully")}
+          onError={(error) => console.error("Image load error:", error)}
         />
         <View className="p-4">
           <Text className="text-2xl font-bold text-gray-800">{item.title}</Text>
@@ -55,15 +65,118 @@ export default function Preferences() {
     );
   }, []);
 
-  // APIから取得したmenusデータをcardData形式に変換
-  const transformedCardData = menus.map((menu) => ({
-    id: menu.id,
-    image: menu.image_url
-      ? { uri: menu.image_url }
-      : require("../../assets/Kocotto_demo.png"),
-    title: menu.name,
-    description: `${menu.soup_name}ベースの${menu.genre_name}（${menu.noodle_name}）`,
-  }));
+  const transformedCardData = useMemo(() => {
+    if (!menus || !Array.isArray(menus)) {
+      return [];
+    }
+    return menus.map((menu) => ({
+      id: menu.id,
+      image: menu.image_url
+        ? {
+            uri: menu.image_url.startsWith("http")
+              ? menu.image_url
+              : `https://ramen-ai-backend-service-943228427206.asia-northeast1.run.app${menu.image_url}`,
+          }
+        : require("../../assets/Kocotto_demo.png"),
+      title: menu.name,
+      description: `${menu.soup_name}ベースの${menu.genre_name}（${menu.noodle_name}）`,
+    }));
+  }, [menus]);
+
+  const handleSwipeRight = useCallback(
+    (index: number) => {
+      const menuId = transformedCardData[index].id;
+      const newLikedMenuIds = [...likedMenuIds, menuId];
+      setLikedMenuIds(newLikedMenuIds);
+      setSwipedCount((prev) => prev + 1);
+      console.log(
+        `いいね: ${transformedCardData[index].title} (ID: ${menuId})`,
+      );
+
+      if (swipedCount + 1 >= transformedCardData.length) {
+        setTimeout(() => {
+          handleAllCardsComplete(newLikedMenuIds);
+        }, 100);
+      }
+    },
+    [transformedCardData, likedMenuIds, swipedCount],
+  );
+
+  const handleSwipeLeft = useCallback(
+    (index: number) => {
+      setSwipedCount((prev) => prev + 1);
+      console.log(`パス: ${transformedCardData[index].title}`);
+
+      if (swipedCount + 1 >= transformedCardData.length) {
+        setTimeout(() => {
+          handleAllCardsComplete(likedMenuIds);
+        }, 100);
+      }
+    },
+    [transformedCardData, swipedCount, likedMenuIds],
+  );
+
+  const handleAllCardsComplete = useCallback(
+    async (finalLikedMenuIds: number[]) => {
+      console.log("全てのカードを見ました");
+      console.log("いいねしたメニューID:", finalLikedMenuIds);
+
+      if (finalLikedMenuIds.length > 0) {
+        try {
+          console.log("いいねしたメニューをAPIに送信中...");
+          setIsSubmitting(true);
+          const response =
+            await apiService.sendRecommendedMenus(finalLikedMenuIds);
+          console.log("API送信成功:", response);
+
+          // レスポンスデータの構造を確認
+          if (response && response.recommended_menu) {
+            router.push({
+              pathname: "/suggestions",
+              params: {
+                recommendedData: JSON.stringify(response),
+              },
+            });
+          } else {
+            console.error("Unexpected response structure:", response);
+            // エラーページに遷移
+            router.push({
+              pathname: "/suggestions",
+              params: {
+                error: "APIレスポンスの形式が不正です",
+              },
+            });
+          }
+        } catch (error) {
+          console.error("API送信に失敗しました:", error);
+
+          // エラー情報を含めて遷移
+          router.push({
+            pathname: "/suggestions",
+            params: {
+              error:
+                "APIエラーが発生しました。しばらく待ってから再度お試しください。",
+            },
+          });
+        } finally {
+          setIsSubmitting(false);
+        }
+      } else {
+        console.log("いいねしたメニューはありません");
+        router.push({
+          pathname: "/suggestions",
+          params: {
+            error: "いいねしたメニューがありません",
+          },
+        });
+      }
+    },
+    [router],
+  );
+
+  const handleSwipedAll = useCallback(async () => {
+    handleAllCardsComplete(likedMenuIds);
+  }, [likedMenuIds, handleAllCardsComplete]);
 
   if (loading) {
     return (
@@ -98,6 +211,9 @@ export default function Preferences() {
           ラーメンスワイパー
         </Text>
       </View>
+      {isSubmitting && (
+        <Text className="text-sm text-blue-500 mt-1">送信中...</Text>
+      )}
 
       <View className="flex-1 items-center justify-center">
         <Swiper
@@ -111,22 +227,17 @@ export default function Preferences() {
           }}
           OverlayLabelRight={OverlayLabelRight}
           OverlayLabelLeft={OverlayLabelLeft}
-          onSwipeRight={(index) => {
-            console.log(`いいね: ${transformedCardData[index].title}`);
-          }}
-          onSwipeLeft={(index) => {
-            console.log(`パス: ${transformedCardData[index].title}`);
-          }}
-          onSwipedAll={() => {
-            console.log("全てのカードを見ました");
-          }}
+          onSwipeRight={handleSwipeRight}
+          onSwipeLeft={handleSwipeLeft}
+          onSwipedAll={handleSwipedAll}
         />
       </View>
 
       <View className="flex-row justify-between items-center px-5 py-5 pb-10">
         <TouchableOpacity
           className="w-16 h-16 rounded-full bg-red-500 justify-center items-center shadow"
-          onPress={() => swiperRef.current?.swipeLeft()}
+          onPress={() => !isSubmitting && swiperRef.current?.swipeLeft()}
+          style={{ opacity: isSubmitting ? 0.5 : 1 }}
         >
           <Text className="text-3xl text-white">✕</Text>
         </TouchableOpacity>
@@ -139,7 +250,8 @@ export default function Preferences() {
 
         <TouchableOpacity
           className="w-16 h-16 rounded-full bg-green-500 justify-center items-center shadow"
-          onPress={() => swiperRef.current?.swipeRight()}
+          onPress={() => !isSubmitting && swiperRef.current?.swipeRight()}
+          style={{ opacity: isSubmitting ? 0.5 : 1 }}
         >
           <Text className="text-3xl text-white">♥</Text>
         </TouchableOpacity>
