@@ -1,22 +1,60 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Text } from "@components/ui/text";
+import { useLocalSearchParams } from "expo-router";
+import { useMemo } from "react";
 import { ActivityIndicator, Image, ScrollView, View } from "react-native";
-import { useRandomMenus } from "../../hooks/useRandomMenus";
 
 export default function Suggestions() {
-  const { menus, loading, error } = useRandomMenus();
+  const params = useLocalSearchParams();
+  const { recommendedMenu, loading, error } = useMemo(() => {
+    try {
+      // エラーパラメータがある場合
+      if (params.error) {
+        return {
+          recommendedMenu: null,
+          loading: false,
+          error: new Error(params.error as string),
+        };
+      }
+
+      if (params.recommendedData) {
+        const parsedData = JSON.parse(params.recommendedData as string);
+        const recommendedMenu = parsedData.recommended_menu;
+        if (recommendedMenu) {
+          return {
+            recommendedMenu: recommendedMenu,
+            loading: false,
+            error: null,
+          };
+        } else {
+          return {
+            recommendedMenu: null,
+            loading: false,
+            error: new Error("おすすめデータの構造が不正です"),
+          };
+        }
+      } else {
+        return {
+          recommendedMenu: null,
+          loading: false,
+          error: new Error("おすすめデータがありません"),
+        };
+      }
+    } catch (parseError) {
+      console.error("Failed to parse recommended data:", parseError);
+      return {
+        recommendedMenu: null,
+        loading: false,
+        error: new Error("データの解析に失敗しました"),
+      };
+    }
+  }, [params.recommendedData, params.error]);
+
   if (loading) {
     return (
       <View className="flex flex-1 items-center justify-center">
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text className="mt-4">ラーメン情報を取得中...</Text>
+        <Text className="mt-4">おすすめを生成中...</Text>
       </View>
     );
   }
@@ -30,7 +68,7 @@ export default function Suggestions() {
     );
   }
 
-  if (!Array.isArray(menus) || menus.length === 0) {
+  if (!recommendedMenu) {
     return (
       <View className="flex flex-1 items-center justify-center">
         <Text>表示できるラーメン情報がありません。</Text>
@@ -38,55 +76,36 @@ export default function Suggestions() {
     );
   }
 
-  const menu = menus[0];
+  const { recommended_ramen, reason, image_url } = recommendedMenu;
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="w-full">
       <View className="flex items-center justify-center py-8 w-full min-h-full">
         <View className="w-full max-w-sm px-4">
-          <Image
-            source={
-              menu.image_url
-                ? { uri: menu.image_url }
-                : require("../../assets/Kocotto_demo.png")
-            }
-            className="w-full h-auto mb-6 rounded-lg shadow-md"
-            resizeMode="contain"
-            style={{ height: 200 }}
-          />
           <Card className="w-full shadow-lg mb-8">
             <CardHeader>
-              <CardTitle>{menu.name || "ラーメン"}</CardTitle>
-              <CardDescription className="flex flex-row flex-wrap gap-2">
-                {menu.genre_name && (
-                  <View className="bg-slate-100 px-2 py-1 rounded-md">
-                    <Text className="text-xs">{menu.genre_name}</Text>
-                  </View>
-                )}
-                {menu.noodle_name && (
-                  <View className="bg-slate-100 px-2 py-1 rounded-md">
-                    <Text className="text-xs">{menu.noodle_name}</Text>
-                  </View>
-                )}
-                {menu.soup_name && (
-                  <View className="bg-slate-100 px-2 py-1 rounded-md">
-                    <Text className="text-xs">{menu.soup_name}</Text>
-                  </View>
-                )}
-              </CardDescription>
+              <CardTitle className="text-center text-2xl">
+                あなたにおすすめのラーメン
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Text className="font-bold mb-2">今日のおすすめ</Text>
-              <Text>
-                {menu.soup_name}ベースの{menu.genre_name}です。
-                {menu.noodle_name}との相性が抜群です。
+              {image_url && (
+                <View className="mb-4">
+                  <Image
+                    source={{ uri: image_url }}
+                    className="w-full h-48 rounded-lg"
+                    resizeMode="cover"
+                  />
+                </View>
+              )}
+              <Text className="text-xl font-bold mb-4 text-center">
+                {recommended_ramen || "おすすめラーメン"}
+              </Text>
+              <Text className="font-bold mb-2">おすすめの理由:</Text>
+              <Text className="text-gray-700 leading-6">
+                {reason || "あなたの好みに合わせて選ばれました。"}
               </Text>
             </CardContent>
-            <CardFooter>
-              <View className="flex flex-row items-center">
-                <Text className="text-sm text-slate-500">ID: {menu.id}</Text>
-              </View>
-            </CardFooter>
           </Card>
         </View>
       </View>
