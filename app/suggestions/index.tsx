@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Text } from "@components/ui/text";
 import { useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
@@ -83,7 +76,7 @@ export default function Suggestions() {
     );
   }
 
-  const { recommended_ramen, reason } = recommendedMenu;
+  const { recommended_ramen, reason, image_url } = recommendedMenu;
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="w-full">
@@ -91,11 +84,27 @@ export default function Suggestions() {
         <View className="w-full max-w-sm px-4">
           <Card className="w-full shadow-lg mb-8">
             <CardHeader>
-              <CardTitle>{recommended_ramen || "おすすめラーメン"}</CardTitle>
+              <CardTitle className="text-center text-2xl">
+                あなたにおすすめのラーメン
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Text className="font-bold mb-2">おすすめの理由</Text>
-              <Text>{reason || "あなたの好みに合わせて選ばれました。"}</Text>
+              {image_url && (
+                <View className="mb-4">
+                  <Image
+                    source={{ uri: image_url }}
+                    className="w-full h-48 rounded-lg"
+                    resizeMode="cover"
+                  />
+                </View>
+              )}
+              <Text className="text-xl font-bold mb-4 text-center">
+                {recommended_ramen || "おすすめラーメン"}
+              </Text>
+              <Text className="font-bold mb-2">おすすめの理由:</Text>
+              <Text className="text-gray-700 leading-6">
+                {reason || "あなたの好みに合わせて選ばれました。"}
+              </Text>
             </CardContent>
           </Card>
         </View>

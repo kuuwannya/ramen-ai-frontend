@@ -73,14 +73,19 @@ export const apiService = {
       };
     }
   },
-  sendRecommendedMenus: async (menuIds: number[]) => {
+  sendRecommendedMenus: async (
+    selectMenuIds: number[],
+    notSelectedMenuIds: number[] = [],
+  ) => {
     try {
-      console.log("Sending menu IDs:", menuIds);
+      console.log("Sending menu IDs:", selectMenuIds);
+      console.log("Sending not selected menu IDs:", notSelectedMenuIds);
 
       const response = await secureApiClient.post(
         "/recommended_menus",
         {
-          menu_ids: menuIds,
+          select_menu_ids: selectMenuIds,
+          not_selected_menu_ids: notSelectedMenuIds,
         },
         {
           headers: {

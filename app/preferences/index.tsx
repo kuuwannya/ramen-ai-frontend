@@ -25,11 +25,11 @@ export default function Preferences() {
   const swiperRef = useRef<SwiperCardRefType>();
 
   const [likedMenuIds, setLikedMenuIds] = useState<number[]>([]);
+  const [passedMenuIds, setPassedMenuIds] = useState<number[]>([]);
   const [swipedCount, setSwipedCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const renderCard = useCallback((item: CardDataType) => {
-    console.log("Image URL:", item.image); // デバッグ用
     return (
       <View className="flex-1 rounded-xl overflow-hidden bg-white shadow-lg">
         <Image
@@ -95,38 +95,47 @@ export default function Preferences() {
 
       if (swipedCount + 1 >= transformedCardData.length) {
         setTimeout(() => {
-          handleAllCardsComplete(newLikedMenuIds);
+          handleAllCardsComplete(newLikedMenuIds, passedMenuIds);
         }, 100);
       }
     },
-    [transformedCardData, likedMenuIds, swipedCount],
+    [transformedCardData, likedMenuIds, swipedCount, passedMenuIds],
   );
 
   const handleSwipeLeft = useCallback(
     (index: number) => {
+      const menuId = transformedCardData[index].id;
+      const newPassedMenuIds = [...passedMenuIds, menuId];
+      setPassedMenuIds(newPassedMenuIds);
       setSwipedCount((prev) => prev + 1);
-      console.log(`パス: ${transformedCardData[index].title}`);
+      console.log(`パス: ${transformedCardData[index].title} (ID: ${menuId})`);
 
       if (swipedCount + 1 >= transformedCardData.length) {
         setTimeout(() => {
-          handleAllCardsComplete(likedMenuIds);
+          handleAllCardsComplete(likedMenuIds, newPassedMenuIds);
         }, 100);
       }
     },
-    [transformedCardData, swipedCount, likedMenuIds],
+    [transformedCardData, passedMenuIds, swipedCount, likedMenuIds],
   );
 
   const handleAllCardsComplete = useCallback(
-    async (finalLikedMenuIds: number[]) => {
+    async (
+      finalLikedMenuIds: number[],
+      finalPassedMenuIds: number[] = passedMenuIds,
+    ) => {
       console.log("全てのカードを見ました");
       console.log("いいねしたメニューID:", finalLikedMenuIds);
+      console.log("パスしたメニューID:", finalPassedMenuIds);
 
       if (finalLikedMenuIds.length > 0) {
         try {
           console.log("いいねしたメニューをAPIに送信中...");
           setIsSubmitting(true);
-          const response =
-            await apiService.sendRecommendedMenus(finalLikedMenuIds);
+          const response = await apiService.sendRecommendedMenus(
+            finalLikedMenuIds,
+            finalPassedMenuIds,
+          );
           console.log("API送信成功:", response);
 
           // レスポンスデータの構造を確認
@@ -171,12 +180,12 @@ export default function Preferences() {
         });
       }
     },
-    [router],
+    [router, passedMenuIds],
   );
 
   const handleSwipedAll = useCallback(async () => {
-    handleAllCardsComplete(likedMenuIds);
-  }, [likedMenuIds, handleAllCardsComplete]);
+    handleAllCardsComplete(likedMenuIds, passedMenuIds);
+  }, [likedMenuIds, passedMenuIds, handleAllCardsComplete]);
 
   if (loading) {
     return (
