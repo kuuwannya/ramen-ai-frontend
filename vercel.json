@@ -4,11 +4,6 @@
   "devCommand": "expo",
   "cleanUrls": true,
   "framework": null,
-  "functions": {
-    "app/**": {
-      "maxDuration": 30
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
