@@ -1,16 +1,20 @@
 import { Link, useRouter } from "expo-router";
 import { useRandomMenus } from "hooks/useRandomMenus";
 import { apiService } from "lib/api-client";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import {
   ActivityIndicator,
   Image,
   Text,
   TouchableOpacity,
   View,
+  Platform,
   type ImageSourcePropType,
 } from "react-native";
-import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
+import { RnSwiper, type SwiperCardRefType } from "rn-swiper-list";
+import WebSwiper from "components/ui/webSwiper";
+
+const Swiper = Platform.OS === "web" ? WebSwiper : RnSwiper;
 
 type CardDataType = {
   id: number;
@@ -187,6 +191,29 @@ export default function Preferences() {
     handleAllCardsComplete(likedMenuIds, passedMenuIds);
   }, [likedMenuIds, passedMenuIds, handleAllCardsComplete]);
 
+  // Web環境での追加設定
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      // Web環境でのタッチイベント最適化
+      const style = document.createElement("style");
+      style.textContent = `
+        * {
+          touch-action: pan-y;
+        }
+        .swiper-container {
+          touch-action: pan-y;
+          user-select: none;
+          -webkit-user-select: none;
+        }
+      `;
+      document.head.appendChild(style);
+
+      return () => {
+        document.head.removeChild(style);
+      };
+    }
+  }, []);
+
   if (loading) {
     return (
       <View className="flex flex-1 items-center justify-center">
@@ -239,6 +266,13 @@ export default function Preferences() {
           onSwipeRight={handleSwipeRight}
           onSwipeLeft={handleSwipeLeft}
           onSwipedAll={handleSwipedAll}
+          {...(Platform.OS !== "web" && {
+            disableBottomSwipe: true,
+            disableTopSwipe: true,
+            horizontalThreshold: 120,
+            animationDuration: 300,
+            useNativeDriver: true,
+          })}
         />
       </View>
 
