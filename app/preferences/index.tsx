@@ -1,13 +1,14 @@
 import { Link, useRouter } from "expo-router";
 import { useRandomMenus } from "hooks/useRandomMenus";
 import { apiService } from "lib/api-client";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import {
   ActivityIndicator,
   Image,
   Text,
   TouchableOpacity,
   View,
+  Platform,
   type ImageSourcePropType,
 } from "react-native";
 import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
@@ -187,6 +188,29 @@ export default function Preferences() {
     handleAllCardsComplete(likedMenuIds, passedMenuIds);
   }, [likedMenuIds, passedMenuIds, handleAllCardsComplete]);
 
+  // Web環境での追加設定
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      // Web環境でのタッチイベント最適化
+      const style = document.createElement("style");
+      style.textContent = `
+        * {
+          touch-action: pan-y;
+        }
+        .swiper-container {
+          touch-action: pan-y;
+          user-select: none;
+          -webkit-user-select: none;
+        }
+      `;
+      document.head.appendChild(style);
+
+      return () => {
+        document.head.removeChild(style);
+      };
+    }
+  }, []);
+
   if (loading) {
     return (
       <View className="flex flex-1 items-center justify-center">
@@ -239,6 +263,17 @@ export default function Preferences() {
           onSwipeRight={handleSwipeRight}
           onSwipeLeft={handleSwipeLeft}
           onSwipedAll={handleSwipedAll}
+          // Web環境向けの追加設定
+          disableBottomSwipe={true}
+          disableTopSwipe={true}
+          horizontalSwipe={true}
+          verticalSwipe={false}
+          // より敏感な閾値設定
+          horizontalThreshold={Platform.OS === "web" ? 50 : 120}
+          // アニメーション設定
+          animationDuration={Platform.OS === "web" ? 200 : 300}
+          // Web環境でのパフォーマンス向上
+          useNativeDriver={Platform.OS !== "web"}
         />
       </View>
 
