@@ -11,7 +11,10 @@ import {
   Platform,
   type ImageSourcePropType,
 } from "react-native";
-import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
+import { RnSwiper, type SwiperCardRefType } from "rn-swiper-list";
+import WebSwiper from "components/ui/webSwiper";
+
+const Swiper = Platform.OS === "web" ? WebSwiper : RnSwiper;
 
 type CardDataType = {
   id: number;
@@ -263,17 +266,13 @@ export default function Preferences() {
           onSwipeRight={handleSwipeRight}
           onSwipeLeft={handleSwipeLeft}
           onSwipedAll={handleSwipedAll}
-          // Web環境向けの追加設定
-          disableBottomSwipe={true}
-          disableTopSwipe={true}
-          horizontalSwipe={true}
-          verticalSwipe={false}
-          // より敏感な閾値設定
-          horizontalThreshold={Platform.OS === "web" ? 50 : 120}
-          // アニメーション設定
-          animationDuration={Platform.OS === "web" ? 200 : 300}
-          // Web環境でのパフォーマンス向上
-          useNativeDriver={Platform.OS !== "web"}
+          {...(Platform.OS !== "web" && {
+            disableBottomSwipe: true,
+            disableTopSwipe: true,
+            horizontalThreshold: 120,
+            animationDuration: 300,
+            useNativeDriver: true,
+          })}
         />
       </View>
 
