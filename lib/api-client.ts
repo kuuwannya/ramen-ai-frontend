@@ -95,6 +95,14 @@ export const apiService = {
       );
 
       console.log("API Response:", response.data);
+
+      // 新しい構造に対応した画像URL変換
+      if (response.data.recommended_menu?.image_url) {
+        response.data.recommended_menu.image_url = convertImageUrl(
+          response.data.recommended_menu.image_url,
+        );
+      }
+
       return response.data;
     } catch (error) {
       console.error("Error sending recommended menus:", error);

@@ -2,16 +2,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Text } from "@components/ui/text";
 import { useLocalSearchParams } from "expo-router";
 import { useMemo } from "react";
-import { ActivityIndicator, Image, ScrollView, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Linking,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function Suggestions() {
   const params = useLocalSearchParams();
-  const { recommendedMenu, loading, error } = useMemo(() => {
+  const { recommendedData, loading, error } = useMemo(() => {
     try {
       // エラーパラメータがある場合
       if (params.error) {
         return {
-          recommendedMenu: null,
+          recommendedData: null,
           loading: false,
           error: new Error(params.error as string),
         };
@@ -19,23 +26,14 @@ export default function Suggestions() {
 
       if (params.recommendedData) {
         const parsedData = JSON.parse(params.recommendedData as string);
-        const recommendedMenu = parsedData.recommended_menu;
-        if (recommendedMenu) {
-          return {
-            recommendedMenu: recommendedMenu,
-            loading: false,
-            error: null,
-          };
-        } else {
-          return {
-            recommendedMenu: null,
-            loading: false,
-            error: new Error("おすすめデータの構造が不正です"),
-          };
-        }
+        return {
+          recommendedData: parsedData,
+          loading: false,
+          error: null,
+        };
       } else {
         return {
-          recommendedMenu: null,
+          recommendedData: null,
           loading: false,
           error: new Error("おすすめデータがありません"),
         };
@@ -43,7 +41,7 @@ export default function Suggestions() {
     } catch (parseError) {
       console.error("Failed to parse recommended data:", parseError);
       return {
-        recommendedMenu: null,
+        recommendedData: null,
         loading: false,
         error: new Error("データの解析に失敗しました"),
       };
@@ -68,7 +66,7 @@ export default function Suggestions() {
     );
   }
 
-  if (!recommendedMenu) {
+  if (!recommendedData || !recommendedData.recommended_menu) {
     return (
       <View className="flex flex-1 items-center justify-center">
         <Text>表示できるラーメン情報がありません。</Text>
@@ -76,7 +74,15 @@ export default function Suggestions() {
     );
   }
 
-  const { recommended_ramen, reason, image_url } = recommendedMenu;
+  const { recommended_menu, reason } = recommendedData;
+  const { name, genre_name, noodle_name, soup_name, image_url, shop } =
+    recommended_menu;
+
+  const handleMapPress = () => {
+    if (shop?.google_map_url) {
+      Linking.openURL(shop.google_map_url);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="w-full">
@@ -98,10 +104,34 @@ export default function Suggestions() {
                   />
                 </View>
               )}
-              <Text className="text-xl font-bold mb-4 text-center">
-                {recommended_ramen || "おすすめラーメン"}
+              <Text className="text-xl font-bold mb-2 text-center">
+                {name || "おすすめラーメン"}
               </Text>
-              <Text className="font-bold mb-2">おすすめの理由:</Text>
+
+              <View className="mb-4">
+                <Text className="text-gray-600 text-center">
+                  {genre_name} - {soup_name}スープ - {noodle_name}
+                </Text>
+              </View>
+
+              {shop && (
+                <View className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <Text className="font-bold text-lg mb-1">{shop.name}</Text>
+                  <Text className="text-gray-600 mb-2">{shop.address}</Text>
+                  {shop.google_map_url && (
+                    <TouchableOpacity
+                      onPress={handleMapPress}
+                      className="bg-blue-500 px-3 py-2 rounded"
+                    >
+                      <Text className="text-white text-center font-medium">
+                        地図で見る
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+
+              <Text className="font-bold mb-2">AIによるおすすめ理由:</Text>
               <Text className="text-gray-700 leading-6">
                 {reason || "あなたの好みに合わせて選ばれました。"}
               </Text>
