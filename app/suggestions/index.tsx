@@ -135,7 +135,7 @@ export default function Suggestions() {
     if (!recommendedData?.recommended_menu) return;
 
     const { recommended_menu } = recommendedData;
-    const menuUrl = `https://your-domain.com/menus/${recommended_menu.id}`; // 実際のドメインに変更してください
+    const menuUrl = `https://ramen-ai-frontend.vercel.app/menus/${recommended_menu.id}`; // 実際のドメインに変更してください
 
     const shareText = `🍜 ラーメンに愛(AI)を！診断結果 🍜\n\nあなたにおすすめのラーメンは「${recommended_menu.name}」でした！\n\n📍 ${recommended_menu.shop?.name || "お店"}\n🥢 ${recommended_menu.genre_name} - ${recommended_menu.soup_name}スープ - ${recommended_menu.noodle_name}\n\n#ラーメンに愛を #ラーメン診断 #ラーメン\n\n`;
 
