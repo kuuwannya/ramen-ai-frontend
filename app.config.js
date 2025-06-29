@@ -1,6 +1,6 @@
 export default {
   expo: {
-    name: "ramen-ai-frontend",
+    name: "ラーメンに愛(AI)を！",
     slug: "ramen-ai-frontend",
     version: "1.0.0",
     orientation: "portrait",
@@ -26,8 +26,14 @@ export default {
       name: "ラーメンに愛(AI)を！",
       bundler: "metro",
       output: "static",
+      build: {
+        minify: true,
+      },
+      routing: {
+        root: "/",
+      },
     },
-    plugins: ["expo-router", "expo-build-properties"],
+    plugins: ["expo-router"],
     extra: {
       router: {
         origin: false,

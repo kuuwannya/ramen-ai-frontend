@@ -1,14 +1,9 @@
 {
-  "buildCommand": "npx expo export -p web",
+  "buildCommand": "npm ci && npx expo export -p web",
   "outputDirectory": "dist",
   "devCommand": "expo start --web",
   "cleanUrls": true,
   "framework": null,
-  "installCommand": "npm ci",
-  "env": {
-    "NODE_ENV": "production",
-    "EXPO_USE_METRO_WORKSPACE_ROOT": "1"
-  },
   "headers": [
     {
       "source": "/(.*)",
