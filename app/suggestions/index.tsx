@@ -106,17 +106,9 @@ export default function Suggestions() {
           エラーが発生しました
         </Text>
         <Text className="text-gray-600 text-center">{error.message}</Text>
-        <Text className="text-gray-500 text-center mt-2 mb-6">
+        <Text className="text-gray-500 text-center mt-2">
           再度お試しください。
         </Text>
-        <TouchableOpacity
-          onPress={handleGoHome}
-          className="bg-gray-500 px-6 py-3 rounded-lg"
-        >
-          <Text className="text-white text-center font-medium">
-            もう一度診断する
-          </Text>
-        </TouchableOpacity>
       </View>
     );
   }
