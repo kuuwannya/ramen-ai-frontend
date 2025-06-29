@@ -26,8 +26,13 @@ export default {
       name: "ラーメンに愛(AI)を！",
       bundler: "metro",
       output: "static",
+      build: {
+        babel: {
+          include: ["nativewind/preset"],
+        },
+      },
     },
-    plugins: ["expo-router"],
+    plugins: ["expo-router", "expo-build-properties"],
     extra: {
       router: {
         origin: false,

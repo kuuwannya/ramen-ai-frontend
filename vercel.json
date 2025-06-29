@@ -1,9 +1,10 @@
 {
-  "buildCommand": "npm ci && npx tailwindcss -i ./global.css -o ./dist/global.css --minify && npx expo export -p web",
+  "buildCommand": "npm ci && npx expo export -p web",
   "outputDirectory": "dist",
   "devCommand": "expo start --web",
   "cleanUrls": true,
   "framework": null,
+  "installCommand": "npm ci",
   "headers": [
     {
       "source": "/(.*)",
