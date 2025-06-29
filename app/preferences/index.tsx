@@ -132,10 +132,31 @@ export default function Preferences() {
         try {
           console.log("いいねしたメニューをAPIに送信中...");
           setIsSubmitting(true);
-          const response = await apiService.sendRecommendedMenus(
+
+          // 最低限のローディング時間を確保
+          const minLoadingTime = new Promise((resolve) =>
+            setTimeout(resolve, 1500),
+          );
+
+          // API送信処理
+          const apiCallPromise = apiService.sendRecommendedMenus(
             finalLikedMenuIds,
             finalPassedMenuIds,
           );
+
+          // タイムアウト処理（15秒）
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => {
+              reject(new Error("TIMEOUT"));
+            }, 15000);
+          });
+
+          // API呼び出しと最低ローディング時間を並行実行
+          const [response] = await Promise.all([
+            Promise.race([apiCallPromise, timeoutPromise]),
+            minLoadingTime,
+          ]);
+
           console.log("API送信成功:", response);
 
           // レスポンスデータの構造を確認
@@ -148,23 +169,45 @@ export default function Preferences() {
             });
           } else {
             console.error("Unexpected response structure:", response);
-            // エラーページに遷移
             router.push({
               pathname: "/suggestions",
               params: {
-                error: "APIレスポンスの形式が不正です",
+                error: "APIレスポンスの形式が不正です。再度お試しください。",
               },
             });
           }
         } catch (error) {
           console.error("API送信に失敗しました:", error);
 
-          // エラー情報を含めて遷移
+          let errorMessage = "APIエラーが発生しました。";
+
+          if (error.message === "TIMEOUT") {
+            errorMessage = "処理がタイムアウトしました。";
+          } else if (error.response) {
+            switch (error.response.status) {
+              case 400:
+                errorMessage = "リクエストに問題があります。";
+                break;
+              case 500:
+                errorMessage = "サーバーエラーが発生しました。";
+                break;
+              case 503:
+                errorMessage = "サービスが一時的に利用できません。";
+                break;
+              default:
+                errorMessage = `エラーが発生しました (${error.response.status})。`;
+            }
+          } else if (
+            error.code === "NETWORK_ERROR" ||
+            error.message.includes("Network")
+          ) {
+            errorMessage = "ネットワークエラーが発生しました。";
+          }
+
           router.push({
             pathname: "/suggestions",
             params: {
-              error:
-                "APIエラーが発生しました。しばらく待ってから再度お試しください。",
+              error: `${errorMessage}しばらく待ってから再度お試しください。`,
             },
           });
         } finally {
@@ -175,7 +218,7 @@ export default function Preferences() {
         router.push({
           pathname: "/suggestions",
           params: {
-            error: "いいねしたメニューがありません",
+            error: "いいねしたメニューがありません。もう一度お試しください。",
           },
         });
       }
@@ -219,10 +262,13 @@ export default function Preferences() {
         <Text className="text-2xl font-bold text-gray-800">
           ラーメンスワイパー
         </Text>
+        {isSubmitting && (
+          <View className="flex-row items-center mt-2">
+            <ActivityIndicator size="small" color="#0000ff" />
+            <Text className="text-sm text-blue-500 ml-2">AIが分析中...</Text>
+          </View>
+        )}
       </View>
-      {isSubmitting && (
-        <Text className="text-sm text-blue-500 mt-1">送信中...</Text>
-      )}
 
       <View className="flex-1 items-center justify-center">
         <Swiper

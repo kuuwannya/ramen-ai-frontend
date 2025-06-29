@@ -73,6 +73,22 @@ export const apiService = {
       };
     }
   },
+  getMenuDetail: async (id: string | string[]) => {
+    try {
+      const response = await secureApiClient.get(`/menu_with_shops/${id}`);
+
+      // 画像URLを絶対URLに変換
+      if (response.data.image_url) {
+        response.data.image_url = convertImageUrl(response.data.image_url);
+      }
+
+      console.log("Menu detail data:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching menu detail:", error);
+      throw error;
+    }
+  },
   sendRecommendedMenus: async (
     selectMenuIds: number[],
     notSelectedMenuIds: number[] = [],
@@ -95,6 +111,14 @@ export const apiService = {
       );
 
       console.log("API Response:", response.data);
+
+      // 新しい構造に対応した画像URL変換
+      if (response.data.recommended_menu?.image_url) {
+        response.data.recommended_menu.image_url = convertImageUrl(
+          response.data.recommended_menu.image_url,
+        );
+      }
+
       return response.data;
     } catch (error) {
       console.error("Error sending recommended menus:", error);
