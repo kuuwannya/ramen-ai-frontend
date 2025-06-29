@@ -6,9 +6,6 @@ module.exports = function (api) {
         "babel-preset-expo",
         {
           jsxImportSource: "nativewind",
-          web: {
-            useTransformReactJSXExperimental: true,
-          },
         },
       ],
     ],
@@ -27,10 +24,5 @@ module.exports = function (api) {
         },
       ],
     ],
-    env: {
-      production: {
-        plugins: ["transform-remove-console"],
-      },
-    },
   };
 };
