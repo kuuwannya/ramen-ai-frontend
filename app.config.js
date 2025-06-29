@@ -26,14 +26,18 @@ export default {
       name: "ラーメンに愛(AI)を！",
       bundler: "metro",
       output: "static",
-      build: {
-        minify: true,
-      },
-      routing: {
-        root: "/",
-      },
     },
-    plugins: ["expo-router"],
+    plugins: [
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          web: {
+            bundler: "metro",
+          },
+        },
+      ],
+    ],
     extra: {
       router: {
         origin: false,
