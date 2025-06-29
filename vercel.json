@@ -1,10 +1,13 @@
 {
-  "buildCommand": "npm ci && npx expo export -p web",
+  "buildCommand": "npm ci && npm run build:web",
   "outputDirectory": "dist",
   "devCommand": "expo start --web",
   "cleanUrls": true,
   "framework": null,
   "installCommand": "npm ci",
+  "env": {
+    "NODE_ENV": "production"
+  },
   "headers": [
     {
       "source": "/(.*)",

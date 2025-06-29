@@ -11,6 +11,8 @@ module.exports = function (api) {
           alias: {
             "@lib": "./lib",
             "@components": "./components",
+            "@hooks": "./hooks",
+            "@types": "./types",
           },
         },
       ],
