@@ -27,17 +27,7 @@ export default {
       bundler: "metro",
       output: "static",
     },
-    plugins: [
-      "expo-router",
-      [
-        "expo-build-properties",
-        {
-          web: {
-            bundler: "metro",
-          },
-        },
-      ],
-    ],
+    plugins: ["expo-router", "expo-build-properties"],
     extra: {
       router: {
         origin: false,
