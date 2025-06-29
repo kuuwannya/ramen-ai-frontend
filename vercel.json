@@ -6,7 +6,13 @@
   "framework": null,
   "installCommand": "npm ci",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "EXPO_USE_METRO_WORKSPACE_ROOT": "1"
+  },
+  "functions": {
+    "app/**/*.tsx": {
+      "runtime": "nodejs18.x"
+    }
   },
   "headers": [
     {

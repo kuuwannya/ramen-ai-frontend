@@ -33,9 +33,7 @@ export default {
         "expo-build-properties",
         {
           web: {
-            babel: {
-              include: ["nativewind/preset"],
-            },
+            bundler: "metro",
           },
         },
       ],
