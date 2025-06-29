@@ -25,7 +25,19 @@ export default {
       favicon: "./assets/favicon-ramen-ai.png",
       name: "ラーメンに愛(AI)を！",
     },
+    plugins: [
+      "expo-router",
+      [
+        "expo-router",
+        {
+          origin: false,
+        },
+      ],
+    ],
     extra: {
+      router: {
+        origin: false,
+      },
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
       baseUrl: process.env.EXPO_PUBLIC_BASE_URL,
     },
