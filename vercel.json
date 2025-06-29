@@ -21,7 +21,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/menus/:id",
+      "source": "/menus/:id*",
       "destination": "/index.html"
     }
   ]
