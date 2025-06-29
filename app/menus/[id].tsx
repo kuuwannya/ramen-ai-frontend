@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Text } from "@components/ui/text";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import Constants from "expo-constants";
+import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -30,15 +31,30 @@ interface MenuDetail {
 export default function MenuDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const [menuData, setMenuData] = useState<MenuDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  // コンポーネントマウント時のデバッグログ
+  useEffect(() => {
+    console.log("Route params:", { id });
+    console.log("Environment:", Constants.executionEnvironment);
+    console.log("Current pathname:", pathname);
+  }, []);
 
   useEffect(() => {
     const fetchMenuDetail = async () => {
       try {
         setLoading(true);
         setError(null);
+        // IDの検証を強化
+        if (!id || (Array.isArray(id) && id.length === 0)) {
+          throw new Error("メニューIDが指定されていません");
+        }
+
+        console.log("Fetching menu with ID:", id);
+        console.log("API URL:", Constants.expoConfig?.extra?.apiUrl);
 
         const data = await apiService.getMenuDetail(id);
         setMenuData(data);
@@ -54,6 +70,9 @@ export default function MenuDetail() {
 
     if (id) {
       fetchMenuDetail();
+    } else {
+      setLoading(false);
+      setError(new Error("メニューIDが見つかりません"));
     }
   }, [id]);
 
