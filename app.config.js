@@ -24,16 +24,10 @@ export default {
     web: {
       favicon: "./assets/favicon-ramen-ai.png",
       name: "ラーメンに愛(AI)を！",
+      bundler: "metro",
+      output: "static",
     },
-    plugins: [
-      "expo-router",
-      [
-        "expo-router",
-        {
-          origin: false,
-        },
-      ],
-    ],
+    plugins: ["expo-router"],
     extra: {
       router: {
         origin: false,
