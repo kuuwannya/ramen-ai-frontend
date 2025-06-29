@@ -22,7 +22,8 @@ export default {
       },
     },
     web: {
-      favicon: "./assets/favicon.png",
+      favicon: "./assets/favicon-ramen-ai.png",
+      name: "ラーメンに愛(AI)を！",
     },
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,

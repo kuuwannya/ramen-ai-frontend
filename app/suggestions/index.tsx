@@ -1,53 +1,93 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Text } from "@components/ui/text";
-import { useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
-import { ActivityIndicator, Image, ScrollView, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Linking,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function Suggestions() {
   const params = useLocalSearchParams();
-  const { recommendedMenu, loading, error } = useMemo(() => {
-    try {
-      // エラーパラメータがある場合
-      if (params.error) {
-        return {
-          recommendedMenu: null,
-          loading: false,
-          error: new Error(params.error as string),
-        };
-      }
+  const router = useRouter();
+  const [recommendedData, setRecommendedData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-      if (params.recommendedData) {
-        const parsedData = JSON.parse(params.recommendedData as string);
-        const recommendedMenu = parsedData.recommended_menu;
-        if (recommendedMenu) {
-          return {
-            recommendedMenu: recommendedMenu,
-            loading: false,
-            error: null,
-          };
-        } else {
-          return {
-            recommendedMenu: null,
-            loading: false,
-            error: new Error("おすすめデータの構造が不正です"),
-          };
-        }
-      } else {
-        return {
-          recommendedMenu: null,
-          loading: false,
-          error: new Error("おすすめデータがありません"),
-        };
+  useEffect(() => {
+    const processData = async () => {
+      try {
+        // 常にローディング状態から開始
+        setLoading(true);
+        setError(null);
+
+        // 最低限のローディング時間を確保（UX向上のため）
+        const minLoadingTime = new Promise((resolve) =>
+          setTimeout(resolve, 1000),
+        );
+
+        // データ処理のPromise
+        const dataProcessingPromise = new Promise(async (resolve, reject) => {
+          try {
+            // エラーパラメータがある場合でも、ローディング時間を確保してから処理
+            if (params.error) {
+              await new Promise((resolve) => setTimeout(resolve, 4000)); // 2秒後にエラー表示
+              throw new Error(params.error as string);
+            }
+
+            if (params.recommendedData) {
+              const parsedData = JSON.parse(params.recommendedData as string);
+
+              if (!parsedData.recommended_menu) {
+                throw new Error("おすすめデータの構造が不正です");
+              }
+
+              resolve(parsedData);
+            } else {
+              // データがない場合も少し待ってからエラー表示
+              await new Promise((resolve) => setTimeout(resolve, 3000));
+              throw new Error("おすすめデータがありません");
+            }
+          } catch (error) {
+            reject(error);
+          }
+        });
+
+        // タイムアウト処理（10秒後）
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(
+              new Error(
+                "処理がタイムアウトしました。ネットワークを確認して再度お試しください。",
+              ),
+            );
+          }, 10000);
+        });
+
+        // 最低ローディング時間と実際の処理を並行実行
+        const [parsedData] = await Promise.all([
+          Promise.race([dataProcessingPromise, timeoutPromise]),
+          minLoadingTime,
+        ]);
+
+        setRecommendedData(parsedData);
+      } catch (parseError) {
+        console.error("Failed to process recommended data:", parseError);
+        setError(
+          parseError instanceof Error
+            ? parseError
+            : new Error("データの処理に失敗しました"),
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (parseError) {
-      console.error("Failed to parse recommended data:", parseError);
-      return {
-        recommendedMenu: null,
-        loading: false,
-        error: new Error("データの解析に失敗しました"),
-      };
-    }
+    };
+
+    processData();
   }, [params.recommendedData, params.error]);
 
   if (loading) {
@@ -58,17 +98,22 @@ export default function Suggestions() {
       </View>
     );
   }
+
   if (error) {
     return (
-      <View className="flex flex-1 items-center justify-center">
-        <Text className="text-red-500">
-          エラーが発生しました。再度お試しください。
+      <View className="flex flex-1 items-center justify-center px-4">
+        <Text className="text-red-500 text-center mb-4">
+          エラーが発生しました
+        </Text>
+        <Text className="text-gray-600 text-center">{error.message}</Text>
+        <Text className="text-gray-500 text-center mt-2">
+          再度お試しください。
         </Text>
       </View>
     );
   }
 
-  if (!recommendedMenu) {
+  if (!recommendedData || !recommendedData.recommended_menu) {
     return (
       <View className="flex flex-1 items-center justify-center">
         <Text>表示できるラーメン情報がありません。</Text>
@@ -76,7 +121,36 @@ export default function Suggestions() {
     );
   }
 
-  const { recommended_ramen, reason, image_url } = recommendedMenu;
+  const { recommended_menu, reason } = recommendedData;
+  const { name, genre_name, noodle_name, soup_name, image_url, shop } =
+    recommended_menu;
+
+  const handleMapPress = () => {
+    if (shop?.google_map_url) {
+      Linking.openURL(shop.google_map_url);
+    }
+  };
+
+  const handleTwitterShare = () => {
+    if (!recommendedData?.recommended_menu) return;
+
+    const { recommended_menu } = recommendedData;
+    const menuUrl = `https://your-domain.com/menus/${recommended_menu.id}`; // 実際のドメインに変更してください
+
+    const shareText = `🍜 ラーメンに愛(AI)を！診断結果 🍜\n\nあなたにおすすめのラーメンは「${recommended_menu.name}」でした！\n\n📍 ${recommended_menu.shop?.name || "お店"}\n🥢 ${recommended_menu.genre_name} - ${recommended_menu.soup_name}スープ - ${recommended_menu.noodle_name}\n\n#ラーメンに愛を #ラーメン診断 #ラーメン\n\n`;
+
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      shareText,
+    )}&url=${encodeURIComponent(menuUrl)}`;
+
+    Linking.openURL(twitterUrl).catch((err) => {
+      console.error("Twitter share failed:", err);
+    });
+  };
+
+  const handleGoHome = () => {
+    router.push("/");
+  };
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="w-full">
@@ -98,13 +172,58 @@ export default function Suggestions() {
                   />
                 </View>
               )}
-              <Text className="text-xl font-bold mb-4 text-center">
-                {recommended_ramen || "おすすめラーメン"}
+              <Text className="text-xl font-bold mb-2 text-center">
+                {name || "おすすめラーメン"}
               </Text>
-              <Text className="font-bold mb-2">おすすめの理由:</Text>
-              <Text className="text-gray-700 leading-6">
+
+              <View className="mb-4">
+                <Text className="text-gray-600 text-center">
+                  {genre_name} - {soup_name}スープ - {noodle_name}
+                </Text>
+              </View>
+
+              {shop && (
+                <View className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <Text className="font-bold text-lg mb-1">{shop.name}</Text>
+                  <Text className="text-gray-600 mb-2">{shop.address}</Text>
+                  {shop.google_map_url && (
+                    <TouchableOpacity
+                      onPress={handleMapPress}
+                      className="bg-blue-500 px-3 py-2 rounded mb-2"
+                    >
+                      <Text className="text-white text-center font-medium">
+                        地図で見る
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+
+              <Text className="font-bold mb-2">AIによるおすすめ理由:</Text>
+              <Text className="text-gray-700 leading-6 mb-6">
                 {reason || "あなたの好みに合わせて選ばれました。"}
               </Text>
+
+              {/* Twitter投稿ボタン */}
+              <TouchableOpacity
+                onPress={handleTwitterShare}
+                className="bg-sky-500 flex-row items-center justify-center px-4 py-3 rounded-lg mb-4"
+              >
+                <Text className="text-white font-bold text-lg mr-2"></Text>
+                <Text className="text-white font-bold text-base">
+                  診断結果をXでシェア
+                </Text>
+              </TouchableOpacity>
+
+              {/* ホームに戻るボタン */}
+              <TouchableOpacity
+                onPress={handleGoHome}
+                className="bg-gray-500 px-4 py-3 rounded-lg"
+              >
+                <Text className="text-white text-center font-medium">
+                  もう一度診断する
+                </Text>
+              </TouchableOpacity>
             </CardContent>
           </Card>
         </View>
