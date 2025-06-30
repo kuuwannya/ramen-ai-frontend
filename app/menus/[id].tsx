@@ -13,6 +13,21 @@ import {
 } from "react-native";
 import { apiService } from "../../lib/api-client";
 
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  try {
+    // ビルド時にAPIからメニューIDリストを取得
+    const menuData = await apiService.getRandomMenus();
+    if (menuData && Array.isArray(menuData.menus)) {
+      return menuData.menus.map((menu) => ({
+        id: menu.id.toString(),
+      }));
+    }
+  } catch (error) {
+    console.warn("Failed to generate static params:", error);
+    // エラー時のフォールバック
+  }
+}
+
 interface MenuDetail {
   id: number;
   name: string;
