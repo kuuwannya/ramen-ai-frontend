@@ -288,7 +288,7 @@ export default function Preferences() {
 
       <View
         className="flex-1 items-center"
-        style={{ paddingBottom: 120, paddingTop: 10 }}
+        style={{ paddingBottom: 100, paddingTop: 10 }}
       >
         <Swiper
           ref={swiperRef}
@@ -348,7 +348,6 @@ export default function Preferences() {
           animateCardOpacity
           swipeBackCard
           containerStyle={{
-            flex: 1,
             width: "90%",
             height: "80%",
           }}

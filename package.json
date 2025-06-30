@@ -7,6 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "build:web": "expo export --platform web",
     "lint": "expo lint",
     "lint:fix": "expo lint --fix",
     "format": "prettier --check \"**/*.{ts,tsx,js,jsx,cjs,mjs,md,json,lintstagedrc}\"",
@@ -15,6 +16,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@expo/metro-runtime": "~5.0.4",
     "@rn-primitives/slot": "^1.1.0",
     "@rn-primitives/types": "^1.1.0",
@@ -23,6 +25,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "expo": "53.0.9",
+    "expo-build-properties": "~0.14.6",
     "expo-constants": "~17.1.6",
     "expo-linking": "~7.1.5",
     "expo-router": "~5.0.7",
@@ -53,6 +56,7 @@
     "@types/react": "~19.0.10",
     "@typescript-eslint/eslint-plugin": "^8.32.0",
     "@typescript-eslint/parser": "^8.32.0",
+    "autoprefixer": "^10.4.21",
     "babel-plugin-module-resolver": "^5.0.2",
     "commitizen": "^4.3.1",
     "commitlint-config-gitmoji": "^2.3.1",

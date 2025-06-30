@@ -3,7 +3,14 @@ const { hairlineWidth } = require("nativewind/theme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "class",
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  important: true,
+  content: [
+    "./app/**/*.{ts,tsx,js,jsx}",
+    "./components/**/*.{ts,tsx,js,jsx}",
+    "./lib/**/*.{ts,tsx,js,jsx}",
+    "./**/*.{js,jsx,ts,tsx}",
+    "./dist/**/*.{html,js}",
+  ],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
@@ -62,4 +69,7 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
+  corePlugins: {
+    preflight: true, // Web環境でのリセットCSSを有効化
+  },
 };
