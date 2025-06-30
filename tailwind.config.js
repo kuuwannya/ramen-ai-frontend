@@ -9,6 +9,7 @@ module.exports = {
     "./components/**/*.{ts,tsx,js,jsx}",
     "./lib/**/*.{ts,tsx,js,jsx}",
     "./**/*.{js,jsx,ts,tsx}",
+    "./dist/**/*.{html,js}",
   ],
   presets: [require("nativewind/preset")],
   theme: {
@@ -68,4 +69,7 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
+  corePlugins: {
+    preflight: true, // Web環境でのリセットCSSを有効化
+  },
 };
