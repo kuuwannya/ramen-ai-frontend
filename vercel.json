@@ -1,5 +1,5 @@
 {
-  "buildCommand": "expo export -p web",
+  "buildCommand": "npm ci && npx expo export -p web",
   "outputDirectory": "dist",
   "devCommand": "expo start --web",
   "cleanUrls": true,
@@ -18,6 +18,10 @@
   "rewrites": [
     {
       "source": "/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/menus/:id*",
       "destination": "/index.html"
     }
   ]
