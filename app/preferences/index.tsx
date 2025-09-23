@@ -1,7 +1,7 @@
-import { Link, useRouter } from "expo-router";
+import { apiService } from "@lib/api-client";
+import { Link, router } from "expo-router";
 import { useRandomMenus } from "hooks/useRandomMenus";
-import { apiService } from "lib/api-client";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -10,7 +10,7 @@ import {
   View,
   type ImageSourcePropType,
 } from "react-native";
-import Swiper from "react-native-deck-swiper";
+import { Swiper, type SwiperCardRefType } from "rn-swiper-list";
 
 type CardDataType = {
   id: number;
@@ -23,14 +23,7 @@ type CardDataType = {
 
 export default function Preferences() {
   const { menus, loading, error } = useRandomMenus();
-  const router = useRouter();
-  const swiperRef = useRef(null);
-
-  const [likedMenuIds, setLikedMenuIds] = useState<number[]>([]);
-  const [passedMenuIds, setPassedMenuIds] = useState<number[]>([]);
-  const [swipedCount, setSwipedCount] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const swiperRef = useRef<SwiperCardRefType>(null);
   const renderCard = useCallback((item: CardDataType) => {
     if (!item) {
       return (

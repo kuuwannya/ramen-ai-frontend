@@ -1,11 +1,7 @@
-import axios from "axios";
-import Constants from "expo-constants";
+import axios, { isAxiosError } from "axios";
 
 const API_URL =
-  Constants.expoConfig?.extra?.apiUrl ||
-  (Constants.executionEnvironment === "standalone"
-    ? "https://ramen-ai-backend-service-943228427206.asia-northeast1.run.app/api/v1"
-    : "https://ramen-ai-backend-service-943228427206.asia-northeast1.run.app/api/v1");
+  "https://ramen-ai-backend-service-943228427206.asia-northeast1.run.app/api/v1";
 
 const BASE_URL =
   "https://ramen-ai-backend-service-943228427206.asia-northeast1.run.app";
@@ -31,7 +27,7 @@ const convertImageUrl = (imageUrl: string | null): string | null => {
 
 export const secureApiClient = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -123,7 +119,7 @@ export const apiService = {
     } catch (error) {
       console.error("Error sending recommended menus:", error);
 
-      if (error.response) {
+      if (axios.isAxiosError(error) && error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
         console.error("Error response headers:", error.response.headers);
